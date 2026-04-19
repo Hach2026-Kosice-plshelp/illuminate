@@ -1,0 +1,56 @@
+<idea-plugin>
+    <id>com.jetslop.illuminate</id>
+    <name>Illuminate</name>
+    <vendor email="team@jetslop.com" url="https://github.com/jetslop">JetSlop</vendor>
+
+    <description><![CDATA[
+    <h2>Illuminate — Instantly Understand Any Codebase</h2>
+    <p>Clone a project → press one button → <b>instantly</b> understand the architecture.</p>
+    <ul>
+        <li><b>🗺️ Interactive Architecture Map</b> — Force-directed graph of all classes, modules, and dependencies. Click any node to jump to code.</li>
+        <li><b>📖 Start Here Path</b> — AI-generated reading order: "Read these files in this order to understand the project." From entry points to details.</li>
+        <li><b>💬 Explain Mode</b> — Chat that understands the ENTIRE architecture, not just one file. Ask anything about the project.</li>
+        <li><b>🏷️ Contextual Hints</b> — See module membership, call sites, patterns, and git history inline.</li>
+    </ul>
+    <p>Developers spend 58% of their time reading code (Microsoft Research). Illuminate cuts that in half.</p>
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.java</depends>
+    <depends>org.jetbrains.kotlin</depends>
+    <!-- Python support: optional — works when Python plugin / PyCharm is available -->
+    <depends optional="true" config-file="python-optional.xml">com.intellij.modules.python</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="Illuminate"
+                    anchor="right"
+                    factoryClass="com.jetslop.illuminate.ui.IlluminateToolWindowFactory"
+                    icon="AllIcons.Actions.Lightning"/>
+
+        <projectService
+                serviceImplementation="com.jetslop.illuminate.services.IlluminateService"/>
+
+        <applicationService
+                serviceImplementation="com.jetslop.illuminate.settings.IlluminateSettings"/>
+
+        <applicationConfigurable
+                parentId="tools"
+                instance="com.jetslop.illuminate.settings.IlluminateConfigurable"
+                id="com.jetslop.illuminate.settings"
+                displayName="Illuminate"/>
+
+        <postStartupActivity
+                implementation="com.jetslop.illuminate.ui.CodeHudProvider"/>
+    </extensions>
+
+    <actions>
+        <action id="com.jetslop.illuminate.scan"
+                class="com.jetslop.illuminate.actions.IlluminateAction"
+                text="Illuminate Project"
+                description="Scan and visualize project architecture"
+                icon="AllIcons.Actions.Lightning">
+            <add-to-group group-id="ToolsMenu" anchor="first"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt shift I"/>
+        </action>
+    </actions>
+</idea-plugin>

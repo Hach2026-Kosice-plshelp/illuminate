@@ -1,0 +1,4 @@
+<idea-plugin>
+    <!-- Activated only when the Python plugin / PyCharm is present.
+         No additional extensions needed — PythonLanguageScanner is loaded reflectively. -->
+</idea-plugin>
