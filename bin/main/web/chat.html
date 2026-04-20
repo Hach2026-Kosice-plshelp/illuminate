@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Illuminate — Explain</title>
+<style>
+:root {
+    --bg: #0d1117; --surface: #161b22; --border: #30363d;
+    --text: #e6edf3; --text-muted: #8b949e; --accent: #7c3aed;
+    --user-bg: #1c2333; --bot-bg: #161b22;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    height: 100vh; display: flex; flex-direction: column;
+}
+
+.chat-header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 14px 20px; flex-shrink: 0;
+}
+.chat-header h1 {
+    font-size: 16px; font-weight: 700;
+    background: linear-gradient(135deg, #a855f7, #6366f1);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.chat-header p { color: var(--text-muted); font-size: 12px; margin-top: 2px; }
+
+.messages {
+    flex: 1; overflow-y: auto; padding: 20px;
+    display: flex; flex-direction: column; gap: 16px;
+}
+
+.message {
+    max-width: 85%; padding: 12px 16px;
+    border-radius: 12px; font-size: 14px; line-height: 1.6;
+    animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.message.user {
+    align-self: flex-end; background: var(--user-bg);
+    border: 1px solid var(--border); border-bottom-right-radius: 4px;
+}
+.message.bot {
+    align-self: flex-start; background: var(--bot-bg);
+    border: 1px solid var(--border); border-bottom-left-radius: 4px;
+}
+.message.bot code {
+    background: rgba(255,255,255,0.08); padding: 1px 5px;
+    border-radius: 3px; font-size: 13px;
+}
+.message.bot pre {
+    background: rgba(0,0,0,0.3); padding: 10px;
+    border-radius: 6px; overflow-x: auto; margin: 8px 0;
+}
+.message.bot pre code {
+    background: none; padding: 0;
+}
+.message.bot strong { color: var(--accent); }
+.message.bot h3 { font-size: 14px; margin: 8px 0 4px; }
+.message.bot ul, .message.bot ol {
+    margin: 4px 0; padding-left: 20px;
+}
+.message.bot li { margin-bottom: 2px; }
+
+.message.system {
+    align-self: center; background: transparent;
+    color: var(--text-muted); font-size: 13px; text-align: center;
+    max-width: 90%;
+}
+
+.typing-indicator {
+    display: none; align-self: flex-start;
+    padding: 12px 16px; background: var(--bot-bg);
+    border: 1px solid var(--border); border-radius: 12px;
+    border-bottom-left-radius: 4px;
+}
+.typing-indicator.visible { display: flex; gap: 4px; }
+.typing-dot {
+    width: 7px; height: 7px; background: var(--text-muted);
+    border-radius: 50%; animation: typingPulse 1.4s infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typingPulse {
+    0%, 60%, 100% { opacity: 0.3; transform: scale(0.8); }
+    30% { opacity: 1; transform: scale(1); }
+}
+
+.suggestions {
+    padding: 0 20px 8px; display: flex; flex-wrap: wrap; gap: 8px;
+    flex-shrink: 0;
+}
+.suggestion {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 20px; padding: 6px 14px;
+    font-size: 12px; color: var(--text-muted); cursor: pointer;
+    transition: all 0.2s;
+}
+.suggestion:hover {
+    border-color: var(--accent); color: var(--text);
+}
+
+.input-area {
+    background: var(--surface); border-top: 1px solid var(--border);
+    padding: 12px 20px; flex-shrink: 0;
+    display: flex; gap: 10px; align-items: flex-end;
+}
+.input-area textarea {
+    flex: 1; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 14px;
+    color: var(--text); font-size: 14px; font-family: inherit;
+    resize: none; min-height: 42px; max-height: 120px;
+    outline: none; transition: border-color 0.2s;
+    line-height: 1.4;
+}
+.input-area textarea:focus { border-color: var(--accent); }
+.input-area textarea::placeholder { color: var(--text-muted); }
+
+.send-btn {
+    width: 42px; height: 42px; border-radius: 8px;
+    background: var(--accent); border: none;
+    color: white; font-size: 18px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: opacity 0.2s; flex-shrink: 0;
+}
+.send-btn:hover { opacity: 0.85; }
+.send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.clear-btn {
+    background: transparent; border: 1px solid var(--border);
+    border-radius: 6px; padding: 4px 10px;
+    color: var(--text-muted); font-size: 14px; cursor: pointer;
+    transition: all 0.2s;
+}
+.clear-btn:hover { border-color: #ef4444; color: #ef4444; }
+</style>
+</head>
+<body>
+
+<div class="chat-header">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+            <h1>💬 Explain Like I Just Cloned This</h1>
+            <p>Ask anything about the project architecture · AI-powered</p>
+        </div>
+        <button class="clear-btn" onclick="doClearHistory()" title="Clear chat history">🗑️</button>
+    </div>
+</div>
+
+<div class="messages" id="messages">
+    <div class="message system">
+        ⚡ I have full context of the project architecture.<br>
+        Ask me anything — from high-level overview to specific classes.
+    </div>
+</div>
+
+<div class="typing-indicator" id="typingIndicator">
+    <div class="typing-dot"></div>
+    <div class="typing-dot"></div>
+    <div class="typing-dot"></div>
+</div>
+
+<div class="suggestions" id="suggestions">
+    <div class="suggestion" onclick="askSuggestion(this)">What does this project do?</div>
+    <div class="suggestion" onclick="askSuggestion(this)">What's the architecture?</div>
+    <div class="suggestion" onclick="askSuggestion(this)">Where are the API endpoints?</div>
+    <div class="suggestion" onclick="askSuggestion(this)">What patterns are used?</div>
+    <div class="suggestion" onclick="askSuggestion(this)">What are the main modules?</div>
+    <div class="suggestion" onclick="askSuggestion(this)">How does data flow?</div>
+</div>
+
+<div class="input-area">
+    <textarea id="input" placeholder="Ask about the project..." rows="1"
+              onkeydown="handleKeyDown(event)" oninput="autoResize(this)"></textarea>
+    <button class="send-btn" id="sendBtn" onclick="sendMessage()">↑</button>
+</div>
+
+<script>
+let isProcessing = false;
+
+function sendMessage() {
+    const input = document.getElementById('input');
+    const text = input.value.trim();
+    if (!text || isProcessing) return;
+
+    addMessage(text, 'user');
+    input.value = '';
+    autoResize(input);
+
+    // Hide suggestions after first message
+    document.getElementById('suggestions').style.display = 'none';
+
+    isProcessing = true;
+    document.getElementById('sendBtn').disabled = true;
+    document.getElementById('typingIndicator').classList.add('visible');
+    scrollToBottom();
+
+    // Call back to Kotlin
+    if (window.askQuestion) {
+        window.askQuestion(text);
+    } else {
+        // Fallback for testing
+        setTimeout(() => receiveAnswer("I don't have a connection to the AI service. Please configure your OpenAI API key in Settings → Tools → Illuminate."), 1000);
+    }
+}
+
+function receiveAnswer(text) {
+    isProcessing = false;
+    document.getElementById('sendBtn').disabled = false;
+    document.getElementById('typingIndicator').classList.remove('visible');
+    addMessage(formatMarkdown(text), 'bot');
+}
+
+function addMessage(html, type) {
+    const messages = document.getElementById('messages');
+    const msg = document.createElement('div');
+    msg.className = 'message ' + type;
+    if (type === 'bot') {
+        msg.innerHTML = html;
+    } else {
+        msg.textContent = html;
+    }
+    messages.appendChild(msg);
+    scrollToBottom();
+}
+
+function scrollToBottom() {
+    const messages = document.getElementById('messages');
+    setTimeout(() => messages.scrollTop = messages.scrollHeight, 50);
+}
+
+function askSuggestion(el) {
+    document.getElementById('input').value = el.textContent;
+    sendMessage();
+}
+
+function handleKeyDown(event) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
+    }
+}
+
+function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function formatMarkdown(text) {
+    // Simple markdown to HTML
+    return text
+        .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+        .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+        .replace(/^- (.+)$/gm, '<li>$1</li>')
+        .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
+        .replace(/\n/g, '<br>');
+}
+
+// Restore chat history from persisted state
+function restoreHistory(messages) {
+    if (!messages || messages.length === 0) return;
+    // Hide suggestions since there's existing history
+    document.getElementById('suggestions').style.display = 'none';
+    for (const msg of messages) {
+        if (msg.role === 'user') {
+            addMessage(msg.content, 'user');
+        } else if (msg.role === 'bot') {
+            addMessage(formatMarkdown(msg.content), 'bot');
+        }
+    }
+}
+
+// Clear chat history
+function doClearHistory() {
+    const messages = document.getElementById('messages');
+    messages.innerHTML = '<div class="message system">⚡ I have full context of the project architecture.<br>Ask me anything — from high-level overview to specific classes.</div>';
+    document.getElementById('suggestions').style.display = 'flex';
+    if (window.clearHistory) window.clearHistory();
+}
+</script>
+</body>
+</html>

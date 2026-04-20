@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Illuminate — Start Here</title>
+<style>
+:root {
+    --bg: #0d1117; --surface: #161b22; --border: #30363d;
+    --text: #e6edf3; --text-muted: #8b949e; --accent: #7c3aed;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    padding: 0; overflow-y: auto; min-height: 100vh;
+}
+
+.header {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 16px 24px;
+}
+.header h1 {
+    font-size: 18px; font-weight: 700; margin-bottom: 4px;
+    background: linear-gradient(135deg, #a855f7, #6366f1);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.header p { color: var(--text-muted); font-size: 13px; }
+
+.progress-bar {
+    margin-top: 12px; height: 6px;
+    background: var(--border); border-radius: 3px; overflow: hidden;
+    position: relative;
+}
+.progress-fill {
+    height: 100%; background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+    border-radius: 3px; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 0%; position: relative;
+}
+.progress-fill::after {
+    content: ''; position: absolute; right: 0; top: 0;
+    width: 30px; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3));
+    animation: progressShimmer 1.5s infinite;
+}
+@keyframes progressShimmer { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
+
+.progress-label {
+    margin-top: 8px; font-size: 13px; font-weight: 600;
+    display: flex; justify-content: space-between; align-items: center;
+}
+.progress-label .pct {
+    background: linear-gradient(135deg, #a855f7, #6366f1);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    font-size: 16px;
+}
+.progress-label .detail { color: var(--text-muted); font-weight: 400; font-size: 12px; }
+
+.stats-row {
+    display: flex; gap: 24px; margin-top: 10px;
+}
+.stats-row .stat {
+    font-size: 12px; color: var(--text-muted);
+}
+.stats-row .stat strong {
+    color: var(--accent); font-weight: 700;
+}
+
+.timeline {
+    padding: 16px 24px 40px;
+    position: relative;
+}
+.timeline::before {
+    content: '';
+    position: absolute; left: 44px; top: 0; bottom: 0;
+    width: 2px; background: var(--border);
+}
+
+.category-header {
+    display: flex; align-items: center; gap: 10px;
+    margin: 20px 0 12px;
+    position: relative; z-index: 1;
+}
+.category-dot {
+    width: 12px; height: 12px; border-radius: 50%;
+    border: 2px solid var(--accent); background: var(--bg);
+    margin-left: 39px;
+}
+.category-header h2 {
+    font-size: 12px; text-transform: uppercase; letter-spacing: 1px;
+    color: var(--text-muted); font-weight: 600;
+}
+
+.step {
+    display: flex; gap: 16px; margin-bottom: 8px;
+    padding: 12px 16px 12px 0; position: relative;
+    cursor: pointer; transition: all 0.2s;
+    border-radius: 8px;
+}
+.step:hover { background: var(--surface); }
+.step.completed { opacity: 0.5; }
+.step.completed .step-number { background: #22c55e; border-color: #22c55e; }
+
+.step-number {
+    width: 28px; height: 28px; min-width: 28px;
+    border-radius: 50%; border: 2px solid var(--border);
+    background: var(--bg); color: var(--text-muted);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+    margin-left: 31px; position: relative; z-index: 1;
+    transition: all 0.2s;
+}
+.step:hover .step-number {
+    border-color: var(--accent); color: var(--accent);
+}
+
+.step-content { flex: 1; min-width: 0; }
+.step-name {
+    font-size: 14px; font-weight: 600; margin-bottom: 3px;
+    display: flex; align-items: center; gap: 8px;
+}
+.step-name .badge {
+    font-size: 10px; padding: 1px 6px;
+    border-radius: 4px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.5px;
+}
+.badge.entry { background: rgba(239,68,68,0.15); color: #ef4444; }
+.badge.api { background: rgba(59,130,246,0.15); color: #3b82f6; }
+.badge.logic { background: rgba(168,85,247,0.15); color: #a855f7; }
+.badge.data { background: rgba(34,197,94,0.15); color: #22c55e; }
+.badge.support { background: rgba(148,163,184,0.15); color: #94a3b8; }
+
+.step-reason {
+    font-size: 13px; color: var(--text-muted); margin-bottom: 4px;
+}
+.step-meta {
+    font-size: 11px; color: var(--text-muted); opacity: 0.7;
+    display: flex; gap: 12px;
+}
+
+.empty-state {
+    text-align: center; padding: 80px 24px;
+    color: var(--text-muted);
+}
+.empty-state .icon { font-size: 48px; margin-bottom: 16px; }
+.empty-state h2 { font-size: 18px; margin-bottom: 8px; color: var(--text); }
+.empty-state p { font-size: 14px; }
+
+/* Checkbox */
+.step-check {
+    position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+    width: 20px; height: 20px; border-radius: 4px;
+    border: 2px solid var(--border); background: transparent;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+}
+.step-check:hover { border-color: var(--accent); }
+.step-check.checked {
+    background: #22c55e; border-color: #22c55e;
+}
+.step-check.checked::after {
+    content: '✓'; color: white; font-size: 12px; font-weight: 700;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+    <h1>📖 Start Here</h1>
+    <p>Read files in this order to understand the project</p>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-label">
+        <span class="detail"><span id="statCompleted">0</span> / <span id="statFiles">-</span> files read · Est. <span id="statTime">-</span></span>
+        <span class="pct" id="statProgress">0%</span>
+    </div>
+</div>
+
+<div class="timeline" id="timeline">
+    <div class="empty-state" id="emptyState">
+        <div class="icon">📖</div>
+        <h2>No scan results yet</h2>
+        <p>Click "Illuminate Project" to scan and generate reading order</p>
+    </div>
+</div>
+
+<script>
+let items = [];
+let completed = new Set();
+
+function renderStartHere(data, initialCompleted) {
+    items = data;
+    if (initialCompleted && Array.isArray(initialCompleted)) {
+        completed = new Set(initialCompleted);
+    }
+    const timeline = document.getElementById('timeline');
+    const emptyState = document.getElementById('emptyState');
+    emptyState.style.display = 'none';
+
+    document.getElementById('statFiles').textContent = items.length;
+    const totalMin = items.reduce((s, i) => s + i.readingTimeMinutes, 0);
+    document.getElementById('statTime').textContent = totalMin < 60
+        ? totalMin + ' min'
+        : Math.floor(totalMin / 60) + 'h ' + (totalMin % 60) + 'min';
+
+    // Group by category
+    const groups = {};
+    const categoryOrder = ['entry', 'api', 'logic', 'data', 'support'];
+    const categoryNames = {
+        entry: '🚀 Entry Points & Configuration',
+        api: '🌐 API Layer',
+        logic: '⚡ Business Logic',
+        data: '💾 Data Layer',
+        support: '🔧 Supporting Classes'
+    };
+
+    items.forEach(item => {
+        const cat = item.category || 'support';
+        if (!groups[cat]) groups[cat] = [];
+        groups[cat].push(item);
+    });
+
+    // Build DOM elements instead of innerHTML
+    timeline.innerHTML = '';
+
+    for (const cat of categoryOrder) {
+        if (!groups[cat] || groups[cat].length === 0) continue;
+
+        const catHeader = document.createElement('div');
+        catHeader.className = 'category-header';
+        catHeader.innerHTML = '<div class="category-dot"></div><h2>' + (categoryNames[cat] || cat) + '</h2>';
+        timeline.appendChild(catHeader);
+
+        for (const item of groups[cat]) {
+            const isCompleted = completed.has(item.order);
+            const step = document.createElement('div');
+            step.className = 'step' + (isCompleted ? ' completed' : '');
+            step.setAttribute('data-order', item.order);
+            step.setAttribute('data-path', item.node.path);
+
+            const numDiv = document.createElement('div');
+            numDiv.className = 'step-number';
+            numDiv.textContent = item.order;
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'step-content';
+
+            const nameDiv = document.createElement('div');
+            nameDiv.className = 'step-name';
+            const nameText = document.createTextNode(item.node.name + ' ');
+            const badge = document.createElement('span');
+            badge.className = 'badge ' + item.category;
+            badge.textContent = (item.node.type || '').replace(/([A-Z])/g, ' $1').trim();
+            nameDiv.appendChild(nameText);
+            nameDiv.appendChild(badge);
+
+            const reasonDiv = document.createElement('div');
+            reasonDiv.className = 'step-reason';
+            reasonDiv.textContent = item.reason;
+
+            const metaDiv = document.createElement('div');
+            metaDiv.className = 'step-meta';
+            metaDiv.innerHTML = '<span>📄 ' + item.node.lines + ' lines</span>' +
+                '<span>⏱ ' + item.readingTimeMinutes + ' min</span>' +
+                '<span>📦 ' + (item.node.module || '').split('.').pop() + '</span>';
+
+            contentDiv.appendChild(nameDiv);
+            contentDiv.appendChild(reasonDiv);
+            contentDiv.appendChild(metaDiv);
+
+            const checkDiv = document.createElement('div');
+            checkDiv.className = 'step-check' + (isCompleted ? ' checked' : '');
+            checkDiv.setAttribute('data-order', item.order);
+
+            // Checkbox click — event delegation via direct listener
+            checkDiv.addEventListener('click', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                const ord = parseInt(this.getAttribute('data-order'));
+                toggleComplete(ord);
+            });
+
+            // Step click — open file
+            step.addEventListener('click', function() {
+                const path = this.getAttribute('data-path');
+                openFile(path);
+            });
+
+            step.appendChild(numDiv);
+            step.appendChild(contentDiv);
+            step.appendChild(checkDiv);
+            timeline.appendChild(step);
+        }
+    }
+
+    updateProgress();
+}
+
+function toggleComplete(order) {
+    if (completed.has(order)) {
+        completed.delete(order);
+        if (window.markComplete) window.markComplete(String(order), false);
+    } else {
+        completed.add(order);
+        if (window.markComplete) window.markComplete(String(order), true);
+    }
+    // Update UI without full re-render
+    const steps = document.querySelectorAll('.step');
+    steps.forEach(step => {
+        const ord = parseInt(step.getAttribute('data-order'));
+        if (ord === order) {
+            step.classList.toggle('completed', completed.has(order));
+            const check = step.querySelector('.step-check');
+            if (check) check.classList.toggle('checked', completed.has(order));
+        }
+    });
+    updateProgress();
+}
+
+function updateProgress() {
+    const pct = items.length > 0 ? Math.round(completed.size / items.length * 100) : 0;
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('statProgress').textContent = pct + '%';
+    document.getElementById('statCompleted').textContent = completed.size;
+}
+
+function openFile(path) {
+    if (window.navigateToFile) {
+        window.navigateToFile(path);
+    }
+}
+
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+</script>
+</body>
+</html>
