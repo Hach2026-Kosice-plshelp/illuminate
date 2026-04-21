@@ -40,4 +40,7 @@ tasks {
     buildSearchableOptions {
         enabled = false
     }
+    runIde {
+        jvmArgs("-Didea.kotlin.plugin.use.k2=false")
+    }
 }
